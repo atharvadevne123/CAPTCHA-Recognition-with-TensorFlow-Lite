@@ -1,6 +1,6 @@
 # 🔐 CAPTCHA Recognition with TensorFlow Lite
 
-This project focuses on recognizing text from CAPTCHA images using lightweight TensorFlow Lite models. It includes preprocessing steps, grayscale conversion, and classification pipelines optimized for fast, resource-efficient inference—ideal for deployment on mobile or embedded systems.
+This project focuses on recognizing text from CAPTCHA images using lightweight TensorFlow Lite models. It includes preprocessing steps, grayscale conversion, and classification pipelines optimized for fast, resource-efficient inference ideal for deployment on mobile or embedded systems.
 
 ## 🎯 Objectives
 
