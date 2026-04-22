@@ -50,6 +50,11 @@ def main():
     if args.symbols is None:
         print("Please specify the captcha symbols file")
         exit(1)
+
+    if args.dict_name is None:
+        print("Please specify the dictionary output file name")
+        exit(1)
+
     start_time = time.time()
     captcha_generator = captcha.image.ImageCaptcha(width=args.width, height=args.height)
 

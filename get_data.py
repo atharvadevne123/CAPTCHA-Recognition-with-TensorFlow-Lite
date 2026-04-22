@@ -1,5 +1,5 @@
+import os
 import requests
-import time
 import argparse
 
 def get_list(shortname):
@@ -19,7 +19,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--shortname', help='Shortname of the user to grab the files for', type=str)
     args = parser.parse_args()
-    
+
+    if args.shortname is None:
+        print("Please specify a shortname")
+        exit(1)
+
+    os.makedirs('captchas', exist_ok=True)
     file_listing = get_list(args.shortname)
     for file_name in file_listing:
         get_img(args.shortname, file_name)
+
+if __name__ == '__main__':
+    main()

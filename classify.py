@@ -7,8 +7,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 import os
 import cv2
 import numpy
-import string
-import random
 import argparse
 import tensorflow as tf
 import tensorflow.keras as keras
@@ -43,7 +41,7 @@ def main():
 
     symbols_file = open(args.symbols, 'r')
     captcha_symbols = symbols_file.readline().strip()
-    captcha_symbols = captcha_symbols + ' '
+    captcha_symbols = captcha_symbols + '&'
     symbols_file.close()
 
     print("Classifying captchas with symbol set {" + captcha_symbols + "}")
@@ -60,12 +58,13 @@ def main():
                           metrics=['accuracy'])
 
             for x in os.listdir(args.captcha_dir):
-                # load image and preprocess it
+                # load image and preprocess it (grayscale + Otsu threshold, matching train.py)
                 raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
-                rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
-                image = numpy.array(rgb_data) / 255.0
-                (c, h, w) = image.shape
-                image = image.reshape([-1, c, h, w])
+                grey_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
+                _, thresh = cv2.threshold(grey_data, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+                image = numpy.array(thresh, dtype=numpy.float32) / 255.0
+                (h, w) = image.shape
+                image = image.reshape([-1, h, w, 1])
                 prediction = model.predict(image)
                 output_file.write(x + ", " + (decode(captcha_symbols, prediction).replace('&', '')) + "\n")
 
