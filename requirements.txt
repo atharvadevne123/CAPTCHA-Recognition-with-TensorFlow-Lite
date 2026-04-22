@@ -1,0 +1,6 @@
+numpy
+opencv-python
+captcha
+requests
+tensorflow>=2.0
+tflite-runtime
