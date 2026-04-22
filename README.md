@@ -1,71 +1,90 @@
-# 🔐 CAPTCHA Recognition with TensorFlow Lite
+# CAPTCHA Recognition with TensorFlow Lite
 
-This project focuses on recognizing text from CAPTCHA images using lightweight TensorFlow Lite models. It includes preprocessing steps, grayscale conversion, and classification pipelines optimized for fast, resource-efficient inference ideal for deployment on mobile or embedded systems.
+This project trains a CNN to recognize text from CAPTCHA images and exports it as a TensorFlow Lite model for fast, lightweight inference on CPU, mobile, or embedded devices.
 
-## 🎯 Objectives
+## Project Structure
 
-- Convert and preprocess CAPTCHA images (e.g., grayscale, resizing)
-- Classify individual characters using `.tflite` models
-- Generate predictions and output decoded CAPTCHA text
+| File | Description |
+|------|-------------|
+| `generate.py` | Generates synthetic CAPTCHA images for training/validation datasets |
+| `train.py` | Trains a CNN model on generated CAPTCHA images (supports GPU and CPU) |
+| `convert.py` | Converts a trained Keras `.h5` model to TensorFlow Lite `.tflite` format |
+| `classify.py` | Classifies CAPTCHAs using a full Keras model (`.json` + `.h5`) |
+| `classify_lite.py` | Classifies CAPTCHAs using a TFLite model (faster, no full TF required) |
+| `get_data.py` | Downloads CAPTCHA images from a remote server |
+| `symbols.txt` | Character set used for CAPTCHA generation and recognition |
+| `*.tflite` | Pretrained TFLite models ready for inference |
 
-## 🗂️ Project Structure
-
-| File               | Description |
-|--------------------|-------------|
-| `classify.py`      | Main script for classifying individual CAPTCHA characters using a `.tflite` model. |
-| `classify_lite.py` | Lightweight version for rapid testing or constrained environments. |
-| `convert.py`       | Converts CAPTCHA images to grayscale and formats them for model input. |
-| `generate.py`      | Combines model outputs to generate full CAPTCHA predictions. |
-| `get_data.py`      | Handles loading and structuring of CAPTCHA image datasets. |
-| `.tflite` models   | Pretrained TFLite models (`grayscale`, `proper2`, `proper3`, etc.) optimized for recognizing CAPTCHA characters. |
-
-## 🧪 Example Usage
-
-### 1. Classify a single CAPTCHA character
+## Install Dependencies
 
 ```bash
-python classify.py --model proper2.tflite --image captcha_char.png
-```
-### 2. Convert full CAPTCHA image to grayscale
-```bash
-python convert.py --input raw_captcha.png --output grayscale_output.png  
+pip install -r requirements.txt
 ```
 
-### 3. Predict entire CAPTCHA string
-```bash
-python generate.py --model proper2.tflite --captcha path/to/captcha.png
-```
+## Usage
 
-## 🛠️ Dependencies
-
-- Python
-- TensorFlow Lite Runtime
-- NumPy
-- Pillow
-
-### Install via pip:
+### 1. Generate training data
 
 ```bash
-pip install numpy pillow tflite-runtime
+python generate.py \
+  --width 128 --height 64 \
+  --upper-length 6 --lower-length 4 \
+  --count 10000 \
+  --output-dir train_data/ \
+  --symbols symbols.txt \
+  --dict-name train_dict.txt
 ```
-🔍 Model Info
 
-## Multiple .tflite models are provided:
+### 2. Train the model
 
-- grayscale.tflite: For grayscale image classification.
-- proper2.tflite & proper3.tflite: Refined versions for better character recognition accuracy.
+```bash
+python train.py \
+  --width 128 --height 64 --length 6 \
+  --batch-size 32 --epochs 20 \
+  --train-dataset train_data/ \
+  --validate-dataset validate_data/ \
+  --output-model-name my_model \
+  --symbols symbols.txt \
+  --train-dict train_dict.txt \
+  --validate-dict validate_dict.txt
+```
 
-## 🚀 Future Improvements
+> Automatically uses GPU if available, falls back to CPU otherwise.
 
-- Add segmentation logic for multi-character CAPTCHA images
-- Integrate with OCR pipelines or web scraping tools
-- Deploy as a microservice (e.g., Flask or FastAPI backend)
+### 3. Convert to TFLite
 
-## Author 
+```bash
+python convert.py --model-name my_model --output my_model_lite
+```
 
-### Atharva Devne ###
+### 4. Classify CAPTCHAs with TFLite model
 
+```bash
+python classify_lite.py \
+  --model-name my_model_lite \
+  --captcha-dir captchas/ \
+  --output results.txt \
+  --symbols symbols.txt \
+  --shortname myname
+```
 
+### 5. Classify CAPTCHAs with full Keras model
 
+```bash
+python classify.py \
+  --model-name my_model \
+  --captcha-dir captchas/ \
+  --output results.txt \
+  --symbols symbols.txt
+```
 
+## Pretrained Models
 
+Four `.tflite` models are included for immediate use:
+
+- `grayscale.tflite` / `greyscale2.tflite` — trained on grayscale-preprocessed CAPTCHAs
+- `proper2.tflite` / `proper3.tflite` — refined versions with improved accuracy
+
+## Author
+
+Atharva Devne
