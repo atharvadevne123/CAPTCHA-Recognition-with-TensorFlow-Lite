@@ -139,7 +139,7 @@ def main():
         print("Please specify the training data set dictionary name")
         exit(1)
 
-    if args.symbols is None:
+    if args.validate_dict is None:
         print("Please specify the validate data set dictionary name")
         exit(1)
     start_time = time.time()
@@ -155,17 +155,21 @@ def main():
             training_dictionary[line_split[0]] = line_split[1].replace('\n', '')
 
     validate_dictionary = {}
-    with open(args.train_dict) as validate_dict_file:
+    with open(args.validate_dict) as validate_dict_file:
         lines = validate_dict_file.readlines()
         for line in lines:
             line_split = line.split(' ')
             validate_dictionary[line_split[0]] = line_split[1].replace('\n', '')
 
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-    assert len(physical_devices) > 0, "No GPU available!"
-    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    if physical_devices:
+        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        device = '/device:GPU:0'
+    else:
+        print("No GPU found, falling back to CPU.")
+        device = '/cpu:0'
 
-    with tf.device('/device:GPU:0'):
+    with tf.device(device):
     #with tf.device('/device:CPU:0'):
     # with tf.device('/device:XLA_CPU:0'):
         model = create_model(args.length, len(captcha_symbols), (args.height, args.width, 1))
