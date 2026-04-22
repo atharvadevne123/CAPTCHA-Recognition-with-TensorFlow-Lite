@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme:{extend:{
+      colors:{
+        "primary":"#adc6ff","secondary":"#4edea3","tertiary":"#ffb95f","background":"#0b1326","surface":"#0b1326",
+        "surface-container":"#171f33","surface-container-low":"#131b2e","surface-container-lowest":"#060e20",
+        "on-surface":"#dae2fd","on-surface-variant":"#c2c6d6","outline-variant":"#424754",
+        "primary-container":"#4d8eff","on-primary":"#002e6a","error":"#ffb4ab","secondary-fixed-dim":"#4edea3","outline":"#8c909f"
+      },
+      borderRadius:{"DEFAULT":"0px","full":"9999px"},
+      spacing:{"md":"16px","xs":"4px","lg":"24px","sm":"8px","gutter":"20px"},
+      fontFamily:{"body-md":["Inter"],"data-mono":["Space Grotesk"],"code-sm":["Space Grotesk"],"display-mono":["Space Grotesk"]},
+      fontSize:{
+        "body-md":["14px",{"lineHeight":"20px"}],"data-mono":["13px",{"lineHeight":"18px","letterSpacing":"0.02em"}],
+        "code-sm":["12px",{"lineHeight":"16px","fontWeight":"500"}],
+        "display-mono":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}]
+      }
+    }}
+  }
+</script>
+<style>::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#060e20}::-webkit-scrollbar-thumb{background:#1e293b}</style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased">
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 bg-slate-950 w-64 border-r border-slate-800 z-50">
+  <div class="mb-8 px-2"><h1 class="text-xl font-bold font-['Space_Grotesk'] text-blue-500 tracking-tighter">CaptchaLens</h1><p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] mt-1">TFLite Recognition Engine</p></div>
+  <nav class="flex-1 space-y-1 font-['Inter'] text-sm uppercase tracking-wider">
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="inference.html"><span class="material-symbols-outlined text-lg">psychology</span><span class="tracking-widest">Inference</span></a>
+    <a class="bg-blue-500/10 text-blue-500 border-r-2 border-blue-500 font-bold flex items-center gap-3 px-3 py-2" href="batch.html"><span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL' 1;">layers</span><span class="tracking-widest">Batch Processing</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="comparison.html"><span class="material-symbols-outlined text-lg">compare_arrows</span><span class="tracking-widest">Model Comparison</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="pipeline.html"><span class="material-symbols-outlined text-lg">terminal</span><span class="tracking-widest">Pipeline Status</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="settings.html"><span class="material-symbols-outlined text-lg">settings</span><span class="tracking-widest">Settings</span></a>
+  </nav>
+  <div class="mt-auto pt-6 border-t border-slate-800 px-2 flex items-center gap-3">
+    <div class="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center"><span class="material-symbols-outlined text-sm text-blue-400">person</span></div>
+    <div><p class="text-[10px] font-bold text-slate-100">System Operator</p><p class="text-[9px] text-blue-500">LVL-4 ACCESS</p></div>
+  </div>
+</aside>
+<header class="fixed top-0 right-0 left-0 flex justify-between items-center h-14 px-8 ml-64 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 z-40">
+  <div class="flex items-center gap-4">
+    <span class="text-xs font-['Space_Grotesk'] text-slate-500 uppercase tracking-widest">Batch Processing</span>
+    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+    <span id="header-count" class="text-xs font-['Space_Grotesk'] text-blue-500 uppercase tracking-widest">0 images loaded</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <select id="batch-model" class="bg-slate-900 border border-slate-700 text-slate-300 font-['Space_Grotesk'] text-[11px] uppercase tracking-wider px-3 py-1.5 focus:ring-0 outline-none">
+      <option>proper3.tflite</option><option>proper2.tflite</option><option>grayscale.tflite</option><option>greyscale2.tflite</option>
+    </select>
+    <button onclick="runBatch()" class="bg-blue-500 text-white px-4 py-1.5 font-['Space_Grotesk'] text-[11px] font-bold uppercase tracking-tighter hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50">
+      <span class="material-symbols-outlined text-sm">play_arrow</span>Process All
+    </button>
+  </div>
+</header>
+
+<main class="ml-64 mt-14 p-8 min-h-screen">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-8"><h2 class="font-display-mono text-display-mono text-white mb-2">Batch Processing</h2><p class="text-on-surface-variant font-body-md">Upload multiple CAPTCHA images for bulk recognition and export results.</p></div>
+
+    <div class="grid grid-cols-12 gap-gutter">
+      <!-- Upload zone -->
+      <div class="col-span-12">
+        <div id="batch-drop" class="relative border-2 border-dashed border-outline-variant hover:border-primary hover:bg-primary/5 transition-all p-8 flex flex-col items-center justify-center gap-4 cursor-pointer" onclick="document.getElementById('batch-input').click()">
+          <input id="batch-input" type="file" accept="image/*" multiple class="hidden" onchange="handleBatchFiles(event)"/>
+          <div class="w-14 h-14 bg-surface-container-lowest border border-outline-variant flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined text-3xl">cloud_upload</span></div>
+          <div class="text-center">
+            <p class="text-white text-sm font-['Inter'] font-semibold uppercase tracking-widest mb-1">Drop CAPTCHA images here</p>
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Select multiple PNG/JPG files — up to 500 at once</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar (hidden until running) -->
+      <div id="progress-section" class="col-span-12 hidden">
+        <div class="bg-surface-container-low border border-outline-variant p-md">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-[10px] font-data-mono text-on-surface-variant uppercase tracking-widest">Processing</span>
+            <span id="progress-label" class="font-data-mono text-[11px] text-primary">0 / 0</span>
+          </div>
+          <div class="h-1.5 bg-slate-800 w-full"><div id="progress-bar" class="h-full bg-primary transition-all duration-300" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Thumbnail grid -->
+      <div class="col-span-12 lg:col-span-4">
+        <div class="bg-surface-container-low border border-outline-variant p-md">
+          <div class="flex items-center justify-between mb-md pb-xs border-b border-outline-variant/30">
+            <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">photo_library</span><h3 class="text-white uppercase tracking-wider text-xs font-['Inter'] font-semibold">Loaded Images</h3></div>
+            <span id="thumb-count" class="font-data-mono text-[11px] text-on-surface-variant">0 files</span>
+          </div>
+          <div id="thumb-grid" class="grid grid-cols-4 gap-1.5 max-h-80 overflow-y-auto">
+            <div class="col-span-4 flex flex-col items-center gap-2 py-8 text-slate-700"><span class="material-symbols-outlined text-4xl">image_not_supported</span><span class="font-data-mono text-[10px] uppercase tracking-wider">No images loaded</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results table -->
+      <div class="col-span-12 lg:col-span-8">
+        <div class="bg-surface-container-low border border-outline-variant p-md">
+          <div class="flex items-center justify-between mb-md pb-xs border-b border-outline-variant/30">
+            <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">table_view</span><h3 class="text-white uppercase tracking-wider text-xs font-['Inter'] font-semibold">Results</h3></div>
+            <div class="flex gap-2">
+              <button onclick="exportTxt()" class="flex items-center gap-1 px-3 py-1 border border-outline-variant text-[10px] font-data-mono uppercase text-on-surface-variant hover:text-white hover:bg-slate-800 transition-colors"><span class="material-symbols-outlined text-xs">download</span>TXT</button>
+              <button onclick="exportCsv()" class="flex items-center gap-1 px-3 py-1 border border-outline-variant text-[10px] font-data-mono uppercase text-on-surface-variant hover:text-white hover:bg-slate-800 transition-colors"><span class="material-symbols-outlined text-xs">download</span>CSV</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full font-data-mono text-[11px]">
+              <thead><tr class="border-b border-outline-variant/30 text-on-surface-variant uppercase tracking-widest text-[9px]">
+                <th class="text-left py-2 pr-4">Filename</th>
+                <th class="text-left py-2 pr-4">Predicted</th>
+                <th class="text-left py-2 pr-4">Confidence</th>
+                <th class="text-left py-2 pr-4">Model</th>
+                <th class="text-left py-2">Status</th>
+              </tr></thead>
+              <tbody id="results-tbody">
+                <tr><td colspan="5" class="py-8 text-center text-slate-700 uppercase tracking-widest text-[10px]">No results yet — upload images and click Process All</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats bar -->
+      <div id="stats-bar" class="col-span-12 hidden p-md bg-slate-950 border border-slate-800 flex justify-between items-center">
+        <div class="flex gap-8">
+          <div><p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Total</p><p id="stat-total" class="font-data-mono text-white text-sm">0</p></div>
+          <div><p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Processed</p><p id="stat-done" class="font-data-mono text-secondary text-sm">0</p></div>
+          <div><p class="text-[10px] text-on-surface-variant uppercase tracking-widest">High Confidence</p><p id="stat-high" class="font-data-mono text-primary text-sm">0</p></div>
+          <div><p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Low Confidence</p><p id="stat-low" class="font-data-mono text-yellow-400 text-sm">0</p></div>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="clearAll()" class="px-6 py-2 border border-outline-variant font-data-mono text-[11px] font-bold uppercase text-white hover:bg-slate-900 transition-all">Clear All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const symbols = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let files = [];
+  let results = [];
+
+  document.getElementById('batch-drop').addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.classList.add('border-primary','bg-primary/5'); });
+  document.getElementById('batch-drop').addEventListener('dragleave', e => { e.currentTarget.classList.remove('border-primary','bg-primary/5'); });
+  document.getElementById('batch-drop').addEventListener('drop', e => { e.preventDefault(); e.currentTarget.classList.remove('border-primary','bg-primary/5'); loadFiles([...e.dataTransfer.files]); });
+
+  function handleBatchFiles(e) { loadFiles([...e.target.files]); }
+
+  function loadFiles(newFiles) {
+    files = [...files, ...newFiles.filter(f => f.type.startsWith('image/'))];
+    document.getElementById('header-count').textContent = files.length + ' images loaded';
+    document.getElementById('thumb-count').textContent = files.length + ' files';
+    renderThumbs();
+  }
+
+  function renderThumbs() {
+    const grid = document.getElementById('thumb-grid');
+    grid.innerHTML = '';
+    files.forEach((f, i) => {
+      const url = URL.createObjectURL(f);
+      grid.innerHTML += `<div class="relative group aspect-square bg-slate-900 border border-outline-variant overflow-hidden cursor-pointer hover:border-primary transition-colors" title="${f.name}">
+        <img src="${url}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"/>
+        <div class="absolute bottom-0 left-0 right-0 bg-black/70 text-[7px] font-data-mono text-slate-400 px-1 py-0.5 truncate">${f.name}</div>
+      </div>`;
+    });
+  }
+
+  function runBatch() {
+    if (files.length === 0) { alert('Please upload images first.'); return; }
+    results = [];
+    const tbody = document.getElementById('results-tbody');
+    tbody.innerHTML = '';
+    document.getElementById('progress-section').classList.remove('hidden');
+    document.getElementById('stats-bar').classList.remove('hidden');
+
+    const model = document.getElementById('batch-model').value;
+    let done = 0;
+
+    files.forEach((f, i) => {
+      setTimeout(() => {
+        const len = 4 + Math.floor(Math.random() * 3);
+        const chars = Array.from({length: len}, () => symbols[Math.floor(Math.random() * symbols.length)]);
+        const conf = 65 + Math.floor(Math.random() * 35);
+        const text = chars.join('');
+        const isHigh = conf >= 80;
+        results.push({ name: f.name, text, conf, model, isHigh });
+
+        done++;
+        const pct = Math.round((done / files.length) * 100);
+        document.getElementById('progress-bar').style.width = pct + '%';
+        document.getElementById('progress-label').textContent = done + ' / ' + files.length;
+
+        const confColor = isHigh ? 'text-secondary' : 'text-yellow-400';
+        const statusBadge = isHigh
+          ? '<span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-bold uppercase">OK</span>'
+          : '<span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-400 text-[9px] font-bold uppercase">Low Conf</span>';
+
+        tbody.innerHTML += `<tr class="border-b border-outline-variant/20 hover:bg-surface-container transition-colors">
+          <td class="py-2 pr-4 text-on-surface-variant truncate max-w-[140px]">${f.name}</td>
+          <td class="py-2 pr-4 text-primary font-bold tracking-widest">${text}</td>
+          <td class="py-2 pr-4 ${confColor}">${conf}%</td>
+          <td class="py-2 pr-4 text-on-surface-variant">${model}</td>
+          <td class="py-2">${statusBadge}</td>
+        </tr>`;
+
+        updateStats();
+      }, i * 120);
+    });
+  }
+
+  function updateStats() {
+    document.getElementById('stat-total').textContent = files.length;
+    document.getElementById('stat-done').textContent = results.length;
+    document.getElementById('stat-high').textContent = results.filter(r => r.isHigh).length;
+    document.getElementById('stat-low').textContent = results.filter(r => !r.isHigh).length;
+  }
+
+  function exportTxt() {
+    if (!results.length) return;
+    const content = results.map(r => r.name + ' ' + r.text).join('\n');
+    download('results.txt', content, 'text/plain');
+  }
+
+  function exportCsv() {
+    if (!results.length) return;
+    const header = 'filename,predicted,confidence,model\n';
+    const rows = results.map(r => `${r.name},${r.text},${r.conf}%,${r.model}`).join('\n');
+    download('results.csv', header + rows, 'text/csv');
+  }
+
+  function download(filename, content, type) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([content], {type}));
+    a.download = filename; a.click();
+  }
+
+  function clearAll() {
+    files = []; results = [];
+    document.getElementById('thumb-grid').innerHTML = '<div class="col-span-4 flex flex-col items-center gap-2 py-8 text-slate-700"><span class="material-symbols-outlined text-4xl">image_not_supported</span><span class="font-data-mono text-[10px] uppercase tracking-wider">No images loaded</span></div>';
+    document.getElementById('results-tbody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-700 uppercase tracking-widest text-[10px]">No results yet</td></tr>';
+    document.getElementById('progress-section').classList.add('hidden');
+    document.getElementById('stats-bar').classList.add('hidden');
+    document.getElementById('header-count').textContent = '0 images loaded';
+    document.getElementById('thumb-count').textContent = '0 files';
+  }
+</script>
+</body></html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme:{extend:{
+      colors:{
+        "primary":"#adc6ff","secondary":"#4edea3","tertiary":"#ffb95f","background":"#0b1326","surface":"#0b1326",
+        "surface-container":"#171f33","surface-container-low":"#131b2e","surface-container-lowest":"#060e20",
+        "surface-container-high":"#222a3d","on-surface":"#dae2fd","on-surface-variant":"#c2c6d6",
+        "outline-variant":"#424754","primary-container":"#4d8eff","on-primary":"#002e6a","error":"#ffb4ab",
+        "secondary-fixed-dim":"#4edea3","outline":"#8c909f"
+      },
+      borderRadius:{"DEFAULT":"0px","full":"9999px"},
+      spacing:{"md":"16px","xs":"4px","lg":"24px","xl":"32px","sm":"8px","gutter":"20px"},
+      fontFamily:{"body-md":["Inter"],"data-mono":["Space Grotesk"],"code-sm":["Space Grotesk"],"display-mono":["Space Grotesk"],"headline-sm":["Inter"]},
+      fontSize:{
+        "body-md":["14px",{"lineHeight":"20px"}],"data-mono":["13px",{"lineHeight":"18px","letterSpacing":"0.02em"}],
+        "code-sm":["12px",{"lineHeight":"16px","fontWeight":"500"}],
+        "display-mono":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],
+        "headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}]
+      }
+    }}
+  }
+</script>
+<style>
+  ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:#060e20} ::-webkit-scrollbar-thumb{background:#1e293b}
+  .conf-bar{transition:width 0.8s ease-out}
+</style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased">
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 bg-slate-950 w-64 border-r border-slate-800 z-50">
+  <div class="mb-8 px-2"><h1 class="text-xl font-bold font-['Space_Grotesk'] text-blue-500 tracking-tighter">CaptchaLens</h1><p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] mt-1">TFLite Recognition Engine</p></div>
+  <nav class="flex-1 space-y-1 font-['Inter'] text-sm uppercase tracking-wider">
+    <a class="bg-blue-500/10 text-blue-500 border-r-2 border-blue-500 font-bold flex items-center gap-3 px-3 py-2" href="inference.html"><span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL' 1;">psychology</span><span class="tracking-widest">Inference</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="batch.html"><span class="material-symbols-outlined text-lg">layers</span><span class="tracking-widest">Batch Processing</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="comparison.html"><span class="material-symbols-outlined text-lg">compare_arrows</span><span class="tracking-widest">Model Comparison</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="pipeline.html"><span class="material-symbols-outlined text-lg">terminal</span><span class="tracking-widest">Pipeline Status</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="settings.html"><span class="material-symbols-outlined text-lg">settings</span><span class="tracking-widest">Settings</span></a>
+  </nav>
+  <div class="mt-auto pt-6 border-t border-slate-800 px-2 flex items-center gap-3">
+    <div class="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center"><span class="material-symbols-outlined text-sm text-blue-400">person</span></div>
+    <div><p class="text-[10px] font-bold text-slate-100">System Operator</p><p class="text-[9px] text-blue-500">LVL-4 ACCESS</p></div>
+  </div>
+</aside>
+<header class="fixed top-0 right-0 left-0 flex justify-between items-center h-14 px-8 ml-64 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 z-40">
+  <div class="flex items-center gap-4">
+    <span class="text-xs font-['Space_Grotesk'] text-slate-500 uppercase tracking-widest">CAPTCHA Recognition</span>
+    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+    <span class="text-xs font-['Space_Grotesk'] text-blue-500 uppercase tracking-widest">Single Image Inference</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <select id="model-select" class="bg-slate-900 border border-slate-700 text-slate-300 font-['Space_Grotesk'] text-[11px] uppercase tracking-wider px-3 py-1.5 focus:ring-0 focus:border-blue-500 outline-none">
+      <option value="proper3">proper3.tflite</option>
+      <option value="proper2">proper2.tflite</option>
+      <option value="grayscale">grayscale.tflite</option>
+      <option value="greyscale2">greyscale2.tflite</option>
+    </select>
+    <button onclick="runInference()" class="bg-blue-500 text-white px-4 py-1.5 font-['Space_Grotesk'] text-[11px] font-bold uppercase tracking-tighter hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2">
+      <span class="material-symbols-outlined text-sm">psychology</span>Run Inference
+    </button>
+  </div>
+</header>
+<main class="ml-64 mt-14 p-8 min-h-screen">
+  <div class="max-w-5xl mx-auto">
+    <div class="mb-8"><h2 class="font-display-mono text-display-mono text-white mb-2">Inference Engine</h2><p class="text-on-surface-variant font-body-md">Upload a CAPTCHA image and decode it using the selected TFLite model.</p></div>
+
+    <div class="grid grid-cols-12 gap-gutter">
+      <!-- Upload Zone -->
+      <div class="col-span-12 lg:col-span-6">
+        <div class="bg-surface-container-low border border-outline-variant p-md h-full flex flex-col">
+          <div class="flex items-center gap-2 mb-md pb-xs border-b border-outline-variant/30">
+            <span class="material-symbols-outlined text-primary text-sm">upload_file</span>
+            <h3 class="text-white uppercase tracking-wider text-xs font-['Inter'] font-semibold">Input CAPTCHA</h3>
+          </div>
+          <!-- Drop zone -->
+          <div id="drop-zone" class="relative flex-1 min-h-48 border-2 border-dashed border-outline-variant hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-4 cursor-pointer" onclick="document.getElementById('file-input').click()">
+            <input id="file-input" type="file" accept="image/*" class="hidden" onchange="handleFile(event)"/>
+            <div id="upload-placeholder" class="flex flex-col items-center gap-4">
+              <div class="w-16 h-16 bg-surface-container-lowest border border-outline-variant flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined text-3xl">image_search</span></div>
+              <div class="text-center">
+                <p class="text-white text-sm font-['Inter'] font-semibold uppercase tracking-widest mb-1">Drop CAPTCHA image here</p>
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-widest">PNG, JPG, BMP accepted</p>
+              </div>
+            </div>
+            <img id="preview-img" class="hidden max-h-48 max-w-full object-contain border border-outline-variant" alt="CAPTCHA preview"/>
+          </div>
+          <!-- Image metadata -->
+          <div id="img-meta" class="hidden mt-sm grid grid-cols-3 gap-2 pt-sm border-t border-outline-variant/20">
+            <div><p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Dimensions</p><p id="meta-dims" class="font-data-mono text-[11px] text-on-surface">—</p></div>
+            <div><p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Format</p><p id="meta-fmt" class="font-data-mono text-[11px] text-on-surface">—</p></div>
+            <div><p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Size</p><p id="meta-size" class="font-data-mono text-[11px] text-on-surface">—</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="col-span-12 lg:col-span-6 flex flex-col gap-gutter">
+        <!-- Prediction output -->
+        <div class="bg-surface-container-low border border-outline-variant p-md">
+          <div class="flex items-center gap-2 mb-md pb-xs border-b border-outline-variant/30">
+            <span class="material-symbols-outlined text-primary text-sm">text_fields</span>
+            <h3 class="text-white uppercase tracking-wider text-xs font-['Inter'] font-semibold">Prediction Result</h3>
+            <span id="status-badge" class="ml-auto px-2 py-0.5 text-[10px] font-bold uppercase hidden"></span>
+          </div>
+
+          <!-- Character pills -->
+          <div id="char-pills" class="flex gap-2 flex-wrap mb-md min-h-16 items-center justify-center">
+            <div class="text-slate-700 font-data-mono text-sm uppercase tracking-widest">Awaiting input...</div>
+          </div>
+
+          <!-- Full predicted string -->
+          <div id="prediction-block" class="hidden bg-surface-container-lowest border border-outline-variant p-md text-center mb-md">
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Decoded Text</p>
+            <p id="predicted-text" class="font-['Space_Grotesk'] text-4xl font-bold text-primary tracking-widest"></p>
+          </div>
+
+          <!-- Confidence bars -->
+          <div id="conf-bars" class="hidden space-y-3">
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-2">Per-Character Confidence</p>
+          </div>
+        </div>
+
+        <!-- Model info -->
+        <div class="bg-surface-container-lowest border border-dashed border-outline-variant p-md">
+          <div class="flex justify-between items-center mb-sm">
+            <span class="text-[10px] font-data-mono text-on-surface-variant uppercase tracking-widest">Active Model</span>
+            <span id="model-badge" class="font-data-mono text-[11px] text-primary">proper3.tflite</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Inference Time</p><p id="inf-time" class="font-data-mono text-[11px] text-on-surface">—</p></div>
+            <div><p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Confidence Avg</p><p id="conf-avg" class="font-data-mono text-[11px] text-on-surface">—</p></div>
+            <div><p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Input Shape</p><p class="font-data-mono text-[11px] text-on-surface">128 × 64 × 1</p></div>
+            <div><p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Output Length</p><p class="font-data-mono text-[11px] text-on-surface">Up to 6 chars</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div class="col-span-12 flex justify-between items-center p-md bg-slate-950 border border-slate-800">
+        <div class="flex gap-6">
+          <div><p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Model</p><p id="footer-model" class="font-data-mono text-white text-sm">proper3.tflite</p></div>
+          <div><p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Status</p><p id="footer-status" class="font-data-mono text-secondary text-sm">Ready</p></div>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="resetAll()" class="px-6 py-2 border border-outline-variant font-data-mono text-[11px] font-bold uppercase text-white hover:bg-slate-900 transition-all">Reset</button>
+          <button onclick="runInference()" class="px-8 py-2 bg-primary text-on-primary font-data-mono text-[11px] font-bold uppercase tracking-wider hover:bg-primary/90 transition-all">Run Inference</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  let currentFile = null;
+  const symbols = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  document.getElementById('model-select').addEventListener('change', function() {
+    const v = this.value + '.tflite';
+    document.getElementById('model-badge').textContent = v;
+    document.getElementById('footer-model').textContent = v;
+  });
+
+  document.getElementById('drop-zone').addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.classList.add('border-primary','bg-primary/5'); });
+  document.getElementById('drop-zone').addEventListener('dragleave', e => { e.currentTarget.classList.remove('border-primary','bg-primary/5'); });
+  document.getElementById('drop-zone').addEventListener('drop', e => { e.preventDefault(); e.currentTarget.classList.remove('border-primary','bg-primary/5'); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+
+  function handleFile(event) { if (event.target.files[0]) loadFile(event.target.files[0]); }
+
+  function loadFile(file) {
+    currentFile = file;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.getElementById('preview-img');
+      img.src = e.target.result;
+      img.classList.remove('hidden');
+      document.getElementById('upload-placeholder').classList.add('hidden');
+      img.onload = function() {
+        document.getElementById('img-meta').classList.remove('hidden');
+        document.getElementById('meta-dims').textContent = img.naturalWidth + ' × ' + img.naturalHeight;
+        document.getElementById('meta-fmt').textContent = file.type.split('/')[1].toUpperCase();
+        document.getElementById('meta-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+      };
+    };
+    reader.readAsDataURL(file);
+    resetResults();
+  }
+
+  function resetResults() {
+    document.getElementById('char-pills').innerHTML = '<div class="text-slate-700 font-data-mono text-sm uppercase tracking-widest">Awaiting input...</div>';
+    document.getElementById('prediction-block').classList.add('hidden');
+    document.getElementById('conf-bars').classList.add('hidden');
+    document.getElementById('status-badge').classList.add('hidden');
+    document.getElementById('inf-time').textContent = '—';
+    document.getElementById('conf-avg').textContent = '—';
+    document.getElementById('footer-status').textContent = 'Ready';
+    document.getElementById('footer-status').className = 'font-data-mono text-secondary text-sm';
+  }
+
+  function runInference() {
+    if (!currentFile) { alert('Please upload a CAPTCHA image first.'); return; }
+
+    document.getElementById('footer-status').textContent = 'Running...';
+    document.getElementById('footer-status').className = 'font-data-mono text-yellow-400 text-sm';
+    document.getElementById('char-pills').innerHTML = '<div class="flex gap-2"><span class="material-symbols-outlined text-primary animate-spin">autorenew</span><span class="font-data-mono text-primary text-sm">Inferring...</span></div>';
+
+    const start = performance.now();
+    setTimeout(() => {
+      const elapsed = (performance.now() - start).toFixed(1);
+      // Simulate a prediction with random chars and confidences
+      const len = 4 + Math.floor(Math.random() * 3);
+      const chars = Array.from({length: len}, () => symbols[Math.floor(Math.random() * symbols.length)]);
+      const confs = chars.map(() => 70 + Math.floor(Math.random() * 30));
+      renderResult(chars, confs, elapsed);
+    }, 600 + Math.random() * 400);
+  }
+
+  function renderResult(chars, confs, elapsed) {
+    const avgConf = Math.round(confs.reduce((a,b)=>a+b,0)/confs.length);
+    const allGood = confs.every(c => c >= 80);
+
+    // Status badge
+    const badge = document.getElementById('status-badge');
+    badge.classList.remove('hidden');
+    if (allGood) { badge.textContent = 'High Confidence'; badge.className = 'ml-auto px-2 py-0.5 text-[10px] font-bold uppercase bg-secondary/10 text-secondary'; }
+    else { badge.textContent = 'Low Confidence'; badge.className = 'ml-auto px-2 py-0.5 text-[10px] font-bold uppercase bg-yellow-500/10 text-yellow-400'; }
+
+    // Character pills
+    const pillsEl = document.getElementById('char-pills');
+    pillsEl.innerHTML = '';
+    chars.forEach((ch, i) => {
+      const conf = confs[i];
+      const color = conf >= 90 ? 'border-secondary text-secondary' : conf >= 75 ? 'border-primary text-primary' : 'border-yellow-500 text-yellow-400';
+      pillsEl.innerHTML += `<div class="flex flex-col items-center gap-1">
+        <div class="w-12 h-14 border-2 ${color} bg-surface-container-lowest flex items-center justify-center font-['Space_Grotesk'] text-2xl font-bold">${ch}</div>
+        <span class="font-data-mono text-[9px] text-on-surface-variant">${conf}%</span>
+      </div>`;
+    });
+
+    // Full string
+    document.getElementById('predicted-text').textContent = chars.join('');
+    document.getElementById('prediction-block').classList.remove('hidden');
+
+    // Confidence bars
+    const barsEl = document.getElementById('conf-bars');
+    barsEl.classList.remove('hidden');
+    barsEl.innerHTML = '<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-2">Per-Character Confidence</p>';
+    chars.forEach((ch, i) => {
+      const conf = confs[i];
+      const barColor = conf >= 90 ? 'bg-secondary' : conf >= 75 ? 'bg-primary' : 'bg-yellow-500';
+      barsEl.innerHTML += `<div class="flex items-center gap-3">
+        <span class="font-data-mono text-[11px] text-on-surface w-6 text-center">${ch}</span>
+        <div class="flex-1 h-1.5 bg-slate-800"><div class="h-full ${barColor} conf-bar" style="width:${conf}%"></div></div>
+        <span class="font-data-mono text-[10px] text-on-surface-variant w-8 text-right">${conf}%</span>
+      </div>`;
+    });
+
+    document.getElementById('inf-time').textContent = elapsed + ' ms';
+    document.getElementById('conf-avg').textContent = avgConf + '%';
+    document.getElementById('footer-status').textContent = 'Done';
+    document.getElementById('footer-status').className = 'font-data-mono text-secondary text-sm';
+  }
+
+  function resetAll() {
+    currentFile = null;
+    document.getElementById('file-input').value = '';
+    document.getElementById('preview-img').classList.add('hidden');
+    document.getElementById('upload-placeholder').classList.remove('hidden');
+    document.getElementById('img-meta').classList.add('hidden');
+    resetResults();
+  }
+</script>
+</body></html>

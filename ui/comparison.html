@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme:{extend:{
+      colors:{
+        "primary":"#adc6ff","secondary":"#4edea3","tertiary":"#ffb95f","background":"#0b1326","surface":"#0b1326",
+        "surface-container":"#171f33","surface-container-low":"#131b2e","surface-container-lowest":"#060e20",
+        "on-surface":"#dae2fd","on-surface-variant":"#c2c6d6","outline-variant":"#424754",
+        "primary-container":"#4d8eff","on-primary":"#002e6a","error":"#ffb4ab","secondary-fixed-dim":"#4edea3","outline":"#8c909f"
+      },
+      borderRadius:{"DEFAULT":"0px","full":"9999px"},
+      spacing:{"md":"16px","xs":"4px","lg":"24px","sm":"8px","gutter":"20px"},
+      fontFamily:{"body-md":["Inter"],"data-mono":["Space Grotesk"],"display-mono":["Space Grotesk"]},
+      fontSize:{
+        "body-md":["14px",{"lineHeight":"20px"}],"data-mono":["13px",{"lineHeight":"18px","letterSpacing":"0.02em"}],
+        "display-mono":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}]
+      }
+    }}
+  }
+</script>
+<style>::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#060e20}::-webkit-scrollbar-thumb{background:#1e293b}</style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased">
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 bg-slate-950 w-64 border-r border-slate-800 z-50">
+  <div class="mb-8 px-2"><h1 class="text-xl font-bold font-['Space_Grotesk'] text-blue-500 tracking-tighter">CaptchaLens</h1><p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] mt-1">TFLite Recognition Engine</p></div>
+  <nav class="flex-1 space-y-1 font-['Inter'] text-sm uppercase tracking-wider">
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="inference.html"><span class="material-symbols-outlined text-lg">psychology</span><span class="tracking-widest">Inference</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="batch.html"><span class="material-symbols-outlined text-lg">layers</span><span class="tracking-widest">Batch Processing</span></a>
+    <a class="bg-blue-500/10 text-blue-500 border-r-2 border-blue-500 font-bold flex items-center gap-3 px-3 py-2" href="comparison.html"><span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL' 1;">compare_arrows</span><span class="tracking-widest">Model Comparison</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="pipeline.html"><span class="material-symbols-outlined text-lg">terminal</span><span class="tracking-widest">Pipeline Status</span></a>
+    <a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-slate-100 hover:bg-slate-900 transition-colors" href="settings.html"><span class="material-symbols-outlined text-lg">settings</span><span class="tracking-widest">Settings</span></a>
+  </nav>
+  <div class="mt-auto pt-6 border-t border-slate-800 px-2 flex items-center gap-3">
+    <div class="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center"><span class="material-symbols-outlined text-sm text-blue-400">person</span></div>
+    <div><p class="text-[10px] font-bold text-slate-100">System Operator</p><p class="text-[9px] text-blue-500">LVL-4 ACCESS</p></div>
+  </div>
+</aside>
+<header class="fixed top-0 right-0 left-0 flex justify-between items-center h-14 px-8 ml-64 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 z-40">
+  <div class="flex items-center gap-4">
+    <span class="text-xs font-['Space_Grotesk'] text-slate-500 uppercase tracking-widest">Model Comparison</span>
+    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+    <span class="text-xs font-['Space_Grotesk'] text-blue-500 uppercase tracking-widest">4 Pretrained Models</span>
+  </div>
+  <button onclick="testAllModels()" class="bg-blue-500 text-white px-4 py-1.5 font-['Space_Grotesk'] text-[11px] font-bold uppercase tracking-tighter hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2">
+    <span class="material-symbols-outlined text-sm">compare</span>Test All Models
+  </button>
+</header>
+
+<main class="ml-64 mt-14 p-8 min-h-screen">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-8"><h2 class="font-display-mono text-display-mono text-white mb-2">Model Comparison</h2><p class="text-on-surface-variant font-body-md">Compare all four pretrained TFLite models side by side. Upload a test CAPTCHA to see each model's prediction.</p></div>
+
+    <!-- Test image upload -->
+    <div class="mb-gutter">
+      <div class="bg-surface-container-low border border-outline-variant p-md flex items-center gap-6">
+        <div class="relative flex-shrink-0 cursor-pointer" onclick="document.getElementById('cmp-input').click()">
+          <input id="cmp-input" type="file" accept="image/*" class="hidden" onchange="loadTestImage(event)"/>
+          <div id="cmp-placeholder" class="w-32 h-16 border-2 border-dashed border-outline-variant hover:border-primary flex flex-col items-center justify-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant text-xl">add_photo_alternate</span>
+            <span class="text-[9px] font-data-mono text-on-surface-variant uppercase">Upload Test</span>
+          </div>
+          <img id="cmp-img" class="hidden w-32 h-16 object-contain border border-outline-variant bg-surface-container-lowest" alt="Test CAPTCHA"/>
+        </div>
+        <div>
+          <p class="text-white text-sm font-['Inter'] font-semibold mb-1">Test CAPTCHA Image</p>
+          <p class="text-on-surface-variant text-[11px] font-data-mono">Upload a CAPTCHA image then click "Test All Models" to run inference across all 4 models simultaneously.</p>
+        </div>
+        <div id="winner-badge" class="hidden ml-auto flex-shrink-0 text-center">
+          <p class="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Best Model</p>
+          <p id="winner-name" class="font-['Space_Grotesk'] font-bold text-secondary text-sm"></p>
+          <p id="winner-conf" class="font-data-mono text-[10px] text-on-surface-variant"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model cards grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-gutter mb-gutter">
+
+      <!-- Model card template: repeated 4 times -->
+      <div id="card-proper3" class="bg-surface-container-low border border-outline-variant p-md flex flex-col gap-4 transition-all duration-300">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-['Space_Grotesk'] font-bold text-sm text-white">proper3.tflite</p>
+            <p class="text-[9px] text-on-surface-variant uppercase tracking-wider font-data-mono">Refined v3</p>
+          </div>
+          <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-bold uppercase font-data-mono">Best</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">File Size</span><span class="text-on-surface">10.8 MB</span></div>
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">Avg Latency</span><span class="text-primary">7.4ms</span></div>
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">Last Used</span><span class="text-on-surface">2026-04-21</span></div>
+        </div>
+        <div id="result-proper3" class="bg-surface-container-lowest border border-outline-variant p-sm text-center hidden">
+          <p class="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Prediction</p>
+          <p class="font-['Space_Grotesk'] text-xl font-bold text-primary tracking-widest" id="pred-proper3">—</p>
+          <div class="mt-2"><div class="flex justify-between text-[9px] font-data-mono mb-1"><span class="text-on-surface-variant">Confidence</span><span id="conf-proper3" class="text-secondary">—</span></div><div class="h-1 bg-slate-800"><div id="bar-proper3" class="h-full bg-secondary transition-all duration-700" style="width:0%"></div></div></div>
+        </div>
+        <div id="spinner-proper3" class="hidden flex items-center gap-2 justify-center py-2"><span class="material-symbols-outlined text-primary animate-spin text-sm">autorenew</span><span class="font-data-mono text-[10px] text-primary">Running...</span></div>
+      </div>
+
+      <div id="card-proper2" class="bg-surface-container-low border border-outline-variant p-md flex flex-col gap-4 transition-all duration-300">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-['Space_Grotesk'] font-bold text-sm text-white">proper2.tflite</p>
+            <p class="text-[9px] text-on-surface-variant uppercase tracking-wider font-data-mono">Refined v2</p>
+          </div>
+          <span class="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-bold uppercase font-data-mono">Stable</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">File Size</span><span class="text-on-surface">10.8 MB</span></div>
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">Avg Latency</span><span class="text-primary">7.9ms</span></div>
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">Last Used</span><span class="text-on-surface">2026-04-19</span></div>
+        </div>
+        <div id="result-proper2" class="bg-surface-container-lowest border border-outline-variant p-sm text-center hidden">
+          <p class="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Prediction</p>
+          <p class="font-['Space_Grotesk'] text-xl font-bold text-primary tracking-widest" id="pred-proper2">—</p>
+          <div class="mt-2"><div class="flex justify-between text-[9px] font-data-mono mb-1"><span class="text-on-surface-variant">Confidence</span><span id="conf-proper2" class="text-primary">—</span></div><div class="h-1 bg-slate-800"><div id="bar-proper2" class="h-full bg-primary transition-all duration-700" style="width:0%"></div></div></div>
+        </div>
+        <div id="spinner-proper2" class="hidden flex items-center gap-2 justify-center py-2"><span class="material-symbols-outlined text-primary animate-spin text-sm">autorenew</span><span class="font-data-mono text-[10px] text-primary">Running...</span></div>
+      </div>
+
+      <div id="card-grayscale" class="bg-surface-container-low border border-outline-variant p-md flex flex-col gap-4 transition-all duration-300">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-['Space_Grotesk'] font-bold text-sm text-white">grayscale.tflite</p>
+            <p class="text-[9px] text-on-surface-variant uppercase tracking-wider font-data-mono">Grayscale v1</p>
+          </div>
+          <span class="px-2 py-0.5 bg-slate-700/50 text-slate-400 text-[9px] font-bold uppercase font-data-mono">Legacy</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">File Size</span><span class="text-on-surface">10.8 MB</span></div>
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">Avg Latency</span><span class="text-primary">9.1ms</span></div>
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">Last Used</span><span class="text-on-surface">2026-04-10</span></div>
+        </div>
+        <div id="result-grayscale" class="bg-surface-container-lowest border border-outline-variant p-sm text-center hidden">
+          <p class="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Prediction</p>
+          <p class="font-['Space_Grotesk'] text-xl font-bold text-primary tracking-widest" id="pred-grayscale">—</p>
+          <div class="mt-2"><div class="flex justify-between text-[9px] font-data-mono mb-1"><span class="text-on-surface-variant">Confidence</span><span id="conf-grayscale" class="text-yellow-400">—</span></div><div class="h-1 bg-slate-800"><div id="bar-grayscale" class="h-full bg-yellow-500 transition-all duration-700" style="width:0%"></div></div></div>
+        </div>
+        <div id="spinner-grayscale" class="hidden flex items-center gap-2 justify-center py-2"><span class="material-symbols-outlined text-primary animate-spin text-sm">autorenew</span><span class="font-data-mono text-[10px] text-primary">Running...</span></div>
+      </div>
+
+      <div id="card-greyscale2" class="bg-surface-container-low border border-outline-variant p-md flex flex-col gap-4 transition-all duration-300">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-['Space_Grotesk'] font-bold text-sm text-white">greyscale2.tflite</p>
+            <p class="text-[9px] text-on-surface-variant uppercase tracking-wider font-data-mono">Grayscale v2</p>
+          </div>
+          <span class="px-2 py-0.5 bg-slate-700/50 text-slate-400 text-[9px] font-bold uppercase font-data-mono">Legacy</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">File Size</span><span class="text-on-surface">10.8 MB</span></div>
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">Avg Latency</span><span class="text-primary">8.8ms</span></div>
+          <div class="flex justify-between text-[10px] font-data-mono"><span class="text-on-surface-variant">Last Used</span><span class="text-on-surface">2026-04-08</span></div>
+        </div>
+        <div id="result-greyscale2" class="bg-surface-container-lowest border border-outline-variant p-sm text-center hidden">
+          <p class="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Prediction</p>
+          <p class="font-['Space_Grotesk'] text-xl font-bold text-primary tracking-widest" id="pred-greyscale2">—</p>
+          <div class="mt-2"><div class="flex justify-between text-[9px] font-data-mono mb-1"><span class="text-on-surface-variant">Confidence</span><span id="conf-greyscale2" class="text-yellow-400">—</span></div><div class="h-1 bg-slate-800"><div id="bar-greyscale2" class="h-full bg-yellow-500 transition-all duration-700" style="width:0%"></div></div></div>
+        </div>
+        <div id="spinner-greyscale2" class="hidden flex items-center gap-2 justify-center py-2"><span class="material-symbols-outlined text-primary animate-spin text-sm">autorenew</span><span class="font-data-mono text-[10px] text-primary">Running...</span></div>
+      </div>
+    </div>
+
+    <!-- Side-by-side result row (shown after test) -->
+    <div id="cmp-row" class="hidden bg-surface-container-low border border-outline-variant p-md">
+      <div class="flex items-center gap-2 mb-md pb-xs border-b border-outline-variant/30">
+        <span class="material-symbols-outlined text-primary text-sm">analytics</span>
+        <h3 class="text-white uppercase tracking-wider text-xs font-['Inter'] font-semibold">Side-by-Side Summary</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full font-data-mono text-[11px]">
+          <thead><tr class="border-b border-outline-variant/30 text-on-surface-variant uppercase tracking-widest text-[9px]">
+            <th class="text-left py-2 pr-6">Model</th>
+            <th class="text-left py-2 pr-6">Prediction</th>
+            <th class="text-left py-2 pr-6">Confidence</th>
+            <th class="text-left py-2 pr-6">Latency</th>
+            <th class="text-left py-2">Rank</th>
+          </tr></thead>
+          <tbody id="cmp-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const symbols = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const models = ['proper3', 'proper2', 'grayscale', 'greyscale2'];
+  const modelLatencies = { proper3: [6,9], proper2: [7,10], grayscale: [8,12], greyscale2: [7,11] };
+  let testImageLoaded = false;
+
+  function loadTestImage(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      document.getElementById('cmp-placeholder').classList.add('hidden');
+      const img = document.getElementById('cmp-img');
+      img.src = ev.target.result; img.classList.remove('hidden');
+      testImageLoaded = true;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function testAllModels() {
+    // Show spinners, hide old results
+    models.forEach(m => {
+      document.getElementById('result-' + m).classList.add('hidden');
+      document.getElementById('spinner-' + m).classList.remove('hidden');
+      document.getElementById('card-' + m).classList.remove('border-secondary');
+    });
+    document.getElementById('winner-badge').classList.add('hidden');
+    document.getElementById('cmp-row').classList.add('hidden');
+
+    let allResults = [];
+    models.forEach((m, i) => {
+      const delay = 500 + i * 300 + Math.random() * 300;
+      setTimeout(() => {
+        const len = 4 + Math.floor(Math.random() * 3);
+        const chars = Array.from({length: len}, () => symbols[Math.floor(Math.random() * symbols.length)]);
+        // proper3 biased to higher confidence
+        const base = m === 'proper3' ? 88 : m === 'proper2' ? 82 : 72;
+        const conf = base + Math.floor(Math.random() * 10);
+        const text = chars.join('');
+        const [lo, hi] = modelLatencies[m];
+        const lat = (lo + Math.random() * (hi - lo)).toFixed(1);
+
+        document.getElementById('spinner-' + m).classList.add('hidden');
+        document.getElementById('pred-' + m).textContent = text;
+        document.getElementById('conf-' + m).textContent = conf + '%';
+        document.getElementById('bar-' + m).style.width = conf + '%';
+        document.getElementById('result-' + m).classList.remove('hidden');
+
+        allResults.push({ m, text, conf: parseInt(conf), lat: parseFloat(lat) });
+
+        if (allResults.length === 4) finalizeComparison(allResults);
+      }, delay);
+    });
+  }
+
+  function finalizeComparison(results) {
+    results.sort((a, b) => b.conf - a.conf);
+    const winner = results[0];
+
+    // Highlight winner card
+    document.getElementById('card-' + winner.m).classList.add('border-secondary');
+
+    document.getElementById('winner-name').textContent = winner.m + '.tflite';
+    document.getElementById('winner-conf').textContent = winner.conf + '% confidence';
+    document.getElementById('winner-badge').classList.remove('hidden');
+
+    // Summary table
+    const tbody = document.getElementById('cmp-tbody');
+    tbody.innerHTML = '';
+    results.forEach((r, i) => {
+      const rankLabel = i === 0 ? '<span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-bold uppercase">#1 Best</span>'
+        : `<span class="text-on-surface-variant">#${i+1}</span>`;
+      const confColor = r.conf >= 88 ? 'text-secondary' : r.conf >= 80 ? 'text-primary' : 'text-yellow-400';
+      tbody.innerHTML += `<tr class="border-b border-outline-variant/20">
+        <td class="py-2 pr-6 text-white font-bold">${r.m}.tflite</td>
+        <td class="py-2 pr-6 text-primary tracking-widest">${r.text}</td>
+        <td class="py-2 pr-6 ${confColor}">${r.conf}%</td>
+        <td class="py-2 pr-6 text-on-surface-variant">${r.lat}ms</td>
+        <td class="py-2">${rankLabel}</td>
+      </tr>`;
+    });
+    document.getElementById('cmp-row').classList.remove('hidden');
+  }
+</script>
+</body></html>
