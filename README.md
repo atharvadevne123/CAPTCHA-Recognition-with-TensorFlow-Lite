@@ -1,3 +1,5 @@
+![Python Package](https://github.com/atharvadevne123/CAPTCHA-Recognition-with-TensorFlow-Lite/actions/workflows/python-publish.yml/badge.svg) ![Bump Version](https://github.com/atharvadevne123/CAPTCHA-Recognition-with-TensorFlow-Lite/actions/workflows/bump-version.yml/badge.svg)
+
 # CAPTCHA Recognition with TensorFlow Lite
 
 This project trains a CNN to recognize text from CAPTCHA images and exports it as a TensorFlow Lite model for fast, lightweight inference on CPU, mobile, or embedded devices.
